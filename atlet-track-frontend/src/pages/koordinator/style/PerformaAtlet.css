@@ -1,0 +1,86 @@
+/* src/pages/koordinator/PerformaAtlet.css */
+.performa-page {
+  background-color: #f8f9fa;
+}
+
+.stat-card {
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.charts-wrapper .card,
+.analysis-wrapper .card {
+  transition: transform 0.2s ease;
+}
+
+.charts-wrapper .card:hover,
+.analysis-wrapper .card:hover {
+  transform: translateY(-5px);
+}
+
+.progress {
+  border-radius: 10px;
+  background-color: #e9ecef;
+  margin: 0.5rem 0;
+}
+
+.progress-bar {
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+.form-select-lg {
+  height: 50px;
+  border-radius: 12px;
+}
+
+.trend-item {
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: #f8f9fa;
+  margin-bottom: 1rem;
+}
+.trend-item:last-child {
+  margin-bottom: 0;
+}
+.trend-badge {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  min-width: 60px;
+  text-align: center;
+}
+.trend-item small {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.header-section {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+.progress-stats {
+  font-size: 0.9rem;
+}
+
+.progress-stats .badge {
+  min-width: 60px;
+  text-align: right;
+}
+

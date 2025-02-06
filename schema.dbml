@@ -1,0 +1,114 @@
+// Admin Management
+Table Admin {
+  id integer [pk, increment]
+  username varchar [unique, not null]
+  password varchar [not null]
+}
+
+Table Koordinator {
+  id integer [pk, increment]
+  nama varchar [not null]
+  email varchar [unique, not null]
+  password varchar [not null]
+  adminId integer [ref: > Admin.id]
+}
+
+Table Atlet {
+  id integer [pk, increment]
+  nama varchar [not null]
+  email varchar [unique, not null]
+  password varchar [not null]
+  cabangOlahraga varchar [not null]
+  koordinatorId integer [ref: > Koordinator.id]
+}
+
+// Exercise Management
+Table KatalogLatihan {
+  id integer [pk, increment]
+  nama varchar [not null]
+  deskripsi text
+  jenisLatihan varchar [not null]
+  tingkatKesulitan varchar [not null]
+  durasi integer [not null]
+  peralatan text
+  manfaat text
+  cabangOlahraga varchar [not null]
+  targetSkor integer [not null]
+  koordinatorId integer [ref: > Koordinator.id]
+}
+
+Table OpsiLatihan {
+  id integer [pk, increment]
+  nama varchar [not null]
+  durasi integer [not null]
+  repetisi integer [not null]
+  deskripsi text [not null]
+  target varchar [not null]
+  instruksi text [not null]
+  katalogLatihanId integer [ref: > KatalogLatihan.id, note: 'on delete cascade']
+}
+
+Table LatihanAtlet {
+  id integer [pk, increment]
+  atletId integer [ref: > Atlet.id]
+  katalogLatihanId integer [ref: > KatalogLatihan.id]
+  status enum ('ONGOING', 'COMPLETED')
+  tanggalMulai datetime [not null]
+  tanggalSelesai datetime
+  currentOpsiIndex integer [default: 0]
+  progressLatihan text
+}
+
+// Evaluation System
+Table Evaluasi {
+  id integer [pk, increment]
+  latihanAtletId integer [ref: > LatihanAtlet.id]
+  atletId integer [ref: > Atlet.id]
+  koordinatorId integer [ref: > Koordinator.id]
+  jenisLatihan enum ('KETAHANAN', 'KEKUATAN', 'KECEPATAN', 'KELINCAHAN', 'KOORDINASI')
+  skor integer [not null]
+  targetPencapaian integer [not null]
+  aspekPenilaian text [not null]
+  komentar text
+  tanggalEvaluasi datetime [default: `now()`]
+  totalRepetisiTercapai integer [not null]
+  totalRepetisiTarget integer [not null]
+  persentaseKetercapaian float [not null]
+}
+
+// Achievement System
+Table Pencapaian {
+  id integer [pk, increment]
+  nama varchar [not null]
+  deskripsi text
+  tanggal datetime [default: `now()`]
+  atletId integer [ref: > Atlet.id]
+  koordinatorId integer [ref: > Koordinator.id]
+}
+
+// Messaging System
+Table Conversation {
+  id integer [pk, increment]
+  koordinatorId integer [ref: > Koordinator.id]
+  atletId integer [ref: > Atlet.id]
+  lastMessageAt datetime [default: `now()`]
+}
+
+Table Pesan {
+  id integer [pk, increment]
+  isi text [not null]
+  status enum ('sent', 'read') [default: 'sent']
+  senderRole enum ('atlet', 'koordinator')
+  conversationId integer [ref: > Conversation.id, note: 'on delete cascade']
+  atletId integer [ref: > Atlet.id, note: 'on delete cascade']
+  koordinatorId integer [ref: > Koordinator.id, note: 'on delete cascade']
+}
+
+// Activity Logging
+Table ActivityLog {
+  id integer [pk, increment]
+  action varchar [not null]
+  timestamp datetime [default: `now()`]
+  adminId integer [ref: > Admin.id]
+  koordinatorId integer [ref: > Koordinator.id]
+}

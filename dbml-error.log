@@ -1,0 +1,21 @@
+2025-01-14T22:20:52.714Z
+Error: Access denied for user 'user'@'localhost' (using password: YES)
+    at createConnectionPromise (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\node_modules\mysql2\promise.js:18:31)
+    at connectMySQL (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\node_modules\@dbml\connector\dist\connectors\mysqlConnector.js:8:57)
+    at fetchSchemaJson (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\node_modules\@dbml\connector\dist\connectors\mysqlConnector.js:366:26)
+    at Object.fetchSchemaJson (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\node_modules\@dbml\connector\dist\connectors\connector.js:16:57)
+    at connectionHandler (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\lib\cli\connector.js:24:51)
+    at Object.db2dbml (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\lib\cli\index.js:62:26)
+    at Object.<anonymous> (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\bin\db2dbml.js:4:19)
+    at Module._compile (node:internal/modules/cjs/loader:1358:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1416:10)
+    at Module.load (node:internal/modules/cjs/loader:1208:32)
+
+2025-01-14T22:21:55.269Z
+Error: Unknown column 'st.expression' in 'field list'
+    at PromiseConnection.query (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\node_modules\mysql2\lib\promise\connection.js:29:22)
+    at generateIndexes (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\node_modules\@dbml\connector\dist\connectors\mysqlConnector.js:201:40)
+    at fetchSchemaJson (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\node_modules\@dbml\connector\dist\connectors\mysqlConnector.js:375:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async connectionHandler (C:\Users\USER\AppData\Roaming\npm\node_modules\@dbml\cli\lib\cli\connector.js:24:24)
+

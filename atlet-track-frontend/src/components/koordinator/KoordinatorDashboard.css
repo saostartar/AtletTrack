@@ -1,0 +1,135 @@
+/* src/components/koordinator/KoordinatorDashboard.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+
+.dashboard-container {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 80px);
+  /* Subtract navbar height */
+}
+
+.dashboard-title {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.75rem;
+}
+
+.stat-card {
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #3498db;
+}
+
+.chart-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chart-legend {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.chart-legend small {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.score-badge {
+  background-color: #e8f5fe;
+  color: #3498db;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.table-responsive {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.table th {
+  font-weight: 500;
+  color: #6c757d;
+  border-top: none;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.btn-outline-primary {
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.btn-outline-primary:hover {
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+.performance-stats .stat-item {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+.performance-stats .progress {
+  border-radius: 10px;
+  background-color: #e9ecef;
+}
+.performance-stats .progress-bar {
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* Custom scrollbar */
+.table-responsive::-webkit-scrollbar {
+  width: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #ccd1d9;
+  border-radius: 3px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-wrapper {
+    padding-top: 60px;
+    /* Smaller padding for mobile */
+  }
+
+  .dashboard-container {
+    min-height: calc(100vh - 60px);
+  }
+}

@@ -1,0 +1,67 @@
+/* src/pages/admin/KoordinatorManagement.css */
+.koordinator-management {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.page-title {
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.page-title h2 {
+  color: #2c3e50;
+  font-weight: 600;
+  margin: 0;
+}
+
+.table-responsive {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+/* Modal styles */
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Button styles */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .koordinator-management {
+    padding-top: 60px;
+  }
+
+  .page-title {
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .page-title h2 {
+    font-size: 1.5rem;
+  }
+}
