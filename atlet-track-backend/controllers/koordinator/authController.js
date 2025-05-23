@@ -9,11 +9,11 @@ export const koordinatorLogin = async (req, res) => {
   try {
     const koordinator = await db.Koordinator.findOne({ where: { email } });
     if (!koordinator) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Kredensial tidak valid' });
     }
     const match = await bcrypt.compare(password, koordinator.password);
     if (!match) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Kredensial tidak valid' });
     }
     const token = jwt.sign({ id: koordinator.id, role: 'koordinator' }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });

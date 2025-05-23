@@ -81,6 +81,9 @@ const Navbar = () => {
                     <FontAwesomeIcon icon={faHistory} className="me-2" />
                     Riwayat Aktivitas
                   </Nav.Link>
+                  <Nav.Link as={Link} to="/admin/topsis">
+                           <i className="bi bi-calculator"></i> Perhitungan TOPSIS
+                         </Nav.Link>
                 </>
               )}
               {auth.role === "koordinator" && (
@@ -133,7 +136,14 @@ const Navbar = () => {
                       <FontAwesomeIcon icon={faTrophy} className="me-2" />
                       Pencapaian
                     </NavDropdown.Item>
+                                      <NavDropdown.Item
+                      as={Link}
+                      to="/koordinator/best-athletes">
+                      <FontAwesomeIcon icon={faRunning} className="me-2" />
+                      Atlet Terbaik
+                    </NavDropdown.Item>
                   </NavDropdown>
+                  
 
                   {/* Training Management Dropdown */}
                   <NavDropdown

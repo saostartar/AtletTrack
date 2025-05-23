@@ -30,6 +30,10 @@ import KatalogDetail from "./pages/atlet/KatalogDetail";
 import Latihan from "./pages/atlet/Latihan";
 import LatihanHistory from "./pages/atlet/LatihanHistory";
 import PerformaAtlet from "./pages/koordinator/PerformaAtlet";
+import BestAthletes from "./pages/koordinator/BestAthletes";
+import AthleteAnalysis from "./pages/koordinator/AthleteAnalysis";
+import TopsisCalculation from "./pages/admin/TopsisCalculation";
+
 
 function App() {
   return (
@@ -52,6 +56,7 @@ function App() {
                 element={<KoordinatorManagement />}
               />
               <Route path="/admin/activity-logs" element={<ActivityLogs />} />
+               <Route path="/admin/topsis" element={<TopsisCalculation />} />
               {/* Add more admin routes here */}
             </Route>
 
@@ -77,6 +82,8 @@ function App() {
                 element={<OpsiLatihan />}
               />
               <Route path="koordinator/analytics" element={<PerformaAtlet />} />
+              <Route path="/koordinator/best-athletes" element={<BestAthletes />} />
+              <Route path="/koordinator/athletes/:id/analysis" element={<AthleteAnalysis />} />
               {/* Add more koordinator routes here */}
             </Route>
 
