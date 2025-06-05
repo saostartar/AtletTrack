@@ -415,8 +415,8 @@ export const getAthleteAnalysis = async (req, res) => {
       weaknesses: weaknesses,
       weightSource: "Bobot kriteria dihitung berdasarkan nilai target minimal setiap jenis latihan",
       recommendations: weaknesses.map(w => ({
-        type: w.type,
-        recommendation: `Focus on improving ${w.type.toLowerCase()} with targeted training programs as it is currently a weak area.`
+      type: w.type,
+      recommendation: `Fokus untuk meningkatkan ${w.type.toLowerCase()} dengan program latihan yang terfokus karena saat ini menjadi area yang lemah.`
       }))
     });
     
@@ -424,6 +424,236 @@ export const getAthleteAnalysis = async (req, res) => {
     console.error("Athlete analysis error:", error);
     res.status(500).json({ 
       message: "Error analyzing athlete performance",
+      error: error.message 
+    });
+  }
+};
+
+// Add this new export to the existing topsisController.js file
+
+export const getTopsisCalculationSteps = async (req, res) => {
+  try {
+    const { cabangOlahraga, startDate, endDate } = req.query;
+    
+    // Build the date filter
+    const dateFilter = {};
+    if (startDate && endDate) {
+      dateFilter.createdAt = {
+        [Op.between]: [new Date(startDate), new Date(endDate)]
+      };
+    } else if (startDate) {
+      dateFilter.createdAt = {
+        [Op.gte]: new Date(startDate)
+      };
+    } else if (endDate) {
+      dateFilter.createdAt = {
+        [Op.lte]: new Date(endDate)
+      };
+    }
+    
+    // Get athletes with evaluations
+    const whereClause = {
+      koordinatorId: req.user.id
+    };
+    
+    if (cabangOlahraga) {
+      whereClause.cabangOlahraga = cabangOlahraga;
+    }
+    
+    const athletes = await db.Atlet.findAll({
+      where: whereClause,
+      attributes: ['id', 'nama', 'cabangOlahraga'],
+      include: [
+        {
+          model: db.Evaluasi,
+          as: 'evaluasi',
+          where: dateFilter,
+          required: false
+        }
+      ]
+    });
+    
+    const athletesWithEvals = athletes.filter(athlete => 
+      athlete.evaluasi && athlete.evaluasi.length > 0
+    );
+    
+    if (athletesWithEvals.length === 0) {
+      return res.status(404).json({
+        message: "Tidak ada data evaluasi yang tersedia untuk perhitungan"
+      });
+    }
+    
+    // Prepare data for TOPSIS calculation
+    const criteriaTypes = Object.keys(CRITERION_WEIGHTS);
+    const athleteScores = [];
+    
+    for (const athlete of athletesWithEvals) {
+      const scores = {};
+      
+      criteriaTypes.forEach(type => {
+        const evaluationsForType = athlete.evaluasi.filter(
+          e => e.jenisLatihan === type
+        );
+        
+        if (evaluationsForType.length > 0) {
+          const totalScore = evaluationsForType.reduce(
+            (sum, evaluation) => sum + parseFloat(evaluation.skor), 0
+          );
+          scores[type] = totalScore / evaluationsForType.length;
+        } else {
+          scores[type] = 0;
+        }
+      });
+      
+      athleteScores.push({
+        id: athlete.id,
+        nama: athlete.nama,
+        cabangOlahraga: athlete.cabangOlahraga,
+        scores: scores
+      });
+    }
+    
+    // Step 1: Decision Matrix
+    const decisionMatrix = athleteScores.map(athlete => {
+      return criteriaTypes.map(type => athlete.scores[type]);
+    });
+    
+    // Step 2: Calculate column norms for normalization
+    const columnNorms = {};
+    criteriaTypes.forEach((type, index) => {
+      let sumOfSquares = 0;
+      decisionMatrix.forEach(row => {
+        sumOfSquares += Math.pow(row[index], 2);
+      });
+      columnNorms[type] = Math.sqrt(sumOfSquares);
+    });
+    
+    // Step 3: Normalize the decision matrix
+    const normalizationResults = athleteScores.map((athlete, athleteIndex) => {
+      const normalizedScores = {};
+      criteriaTypes.forEach((type, criteriaIndex) => {
+        if (columnNorms[type] === 0) {
+          normalizedScores[type] = 0;
+        } else {
+          normalizedScores[type] = athlete.scores[type] / columnNorms[type];
+        }
+      });
+      
+      return {
+        nama: athlete.nama,
+        normalizedScores: normalizedScores
+      };
+    });
+    
+    // Step 4: Calculate weighted normalized matrix
+    const weightedResults = normalizationResults.map(result => {
+      const weightedScores = {};
+      criteriaTypes.forEach(type => {
+        weightedScores[type] = result.normalizedScores[type] * CRITERION_WEIGHTS[type];
+      });
+      
+      return {
+        nama: result.nama,
+        weightedScores: weightedScores
+      };
+    });
+    
+    // Step 5: Determine ideal solutions
+    const idealSolutions = {
+      positive: {},
+      negative: {}
+    };
+    
+    criteriaTypes.forEach(type => {
+      let max = -Infinity;
+      let min = Infinity;
+      
+      weightedResults.forEach(result => {
+        if (result.weightedScores[type] > max) {
+          max = result.weightedScores[type];
+        }
+        if (result.weightedScores[type] < min) {
+          min = result.weightedScores[type];
+        }
+      });
+      
+      idealSolutions.positive[type] = max === -Infinity ? 0 : max;
+      idealSolutions.negative[type] = min === Infinity ? 0 : min;
+    });
+    
+    // Step 6: Calculate distances to ideal solutions
+    const distances = athleteScores.map((athlete, index) => {
+      let positiveSum = 0;
+      let negativeSum = 0;
+      
+      criteriaTypes.forEach(type => {
+        const weightedScore = weightedResults[index].weightedScores[type];
+        positiveSum += Math.pow(weightedScore - idealSolutions.positive[type], 2);
+        negativeSum += Math.pow(weightedScore - idealSolutions.negative[type], 2);
+      });
+      
+      return {
+        nama: athlete.nama,
+        positiveDistance: Math.sqrt(positiveSum),
+        negativeDistance: Math.sqrt(negativeSum)
+      };
+    });
+    
+    // Step 7: Calculate relative closeness
+    const relativeCloseness = distances.map(distance => {
+      const denominator = distance.positiveDistance + distance.negativeDistance;
+      const score = denominator === 0 ? 0 : distance.negativeDistance / denominator;
+      
+      return {
+        nama: distance.nama,
+        score: score
+      };
+    });
+    
+    // Step 8: Final rankings
+    const finalRankings = athleteScores.map((athlete, index) => ({
+      nama: athlete.nama,
+      id: athlete.id,
+      topsisScore: relativeCloseness[index].score,
+      rank: null
+    }));
+    
+    finalRankings.sort((a, b) => b.topsisScore - a.topsisScore);
+    finalRankings.forEach((result, index) => {
+      result.rank = index + 1;
+    });
+    
+    // Prepare response with all calculation steps
+    const response = {
+      jenisLatihan: JENIS_LATIHAN,
+      weights: CRITERION_WEIGHTS,
+      criterias: criteriaTypes.map(c => c.toLowerCase()),
+      athleteData: athleteScores,
+      columnNorms: columnNorms,
+      normalizationResults: normalizationResults,
+      weightedResults: weightedResults,
+      idealSolutions: idealSolutions,
+      distances: distances,
+      relativeCloseness: relativeCloseness,
+      finalRankings: finalRankings,
+      metadata: {
+        totalAthletes: athleteScores.length,
+        criteriaCount: criteriaTypes.length,
+        calculationDate: new Date().toISOString(),
+        filters: {
+          cabangOlahraga: cabangOlahraga || "Semua",
+          startDate: startDate || "Semua waktu",
+          endDate: endDate || "Hingga sekarang"
+        }
+      }
+    };
+    
+    res.json(response);
+    
+  } catch (error) {
+    console.error("TOPSIS calculation steps error:", error);
+    res.status(500).json({ 
+      message: "Error generating TOPSIS calculation steps",
       error: error.message 
     });
   }

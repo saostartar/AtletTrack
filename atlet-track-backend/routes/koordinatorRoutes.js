@@ -9,7 +9,8 @@ import {
 } from "../controllers/koordinator/koordinatorController.js";
 import {
   getBestAthletes,
-  getAthleteAnalysis
+  getAthleteAnalysis,
+  getTopsisCalculationSteps
 } from "../controllers/koordinator/topsisController.js";
 import {
   createAtlet,
@@ -108,5 +109,6 @@ router.get("/list", getAllKoordinators);
 // TOPSIS Decision Support System Routes
 router.get("/athletes/best", getBestAthletes);
 router.get("/athletes/:id/analysis", getAthleteAnalysis);
+router.get('/athletes/topsis-calculation', getTopsisCalculationSteps);
 
 export default router;

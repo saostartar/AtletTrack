@@ -113,27 +113,44 @@ export const updateAtlet = async (req, res) => {
 // Delete Atlet
 export const deleteAtlet = async (req, res) => {
   const { id } = req.params;
+  
+  // Use transaction to ensure data consistency
+  const transaction = await db.sequelize.transaction();
+  
   try {
     const atlet = await db.Atlet.findOne({ 
       where: { 
         id, 
         koordinatorId: req.user.id 
       } 
-    });
+    }, { transaction });
     
     if (!atlet) {
+      await transaction.rollback();
       return res.status(404).json({ message: 'Atlet tidak ditemukan' });
     }
+
+    // Delete related conversations first
+    await db.Conversation.destroy({
+      where: { atletId: id }
+    }, { transaction });
 
     // Log activity before deletion
     await db.ActivityLog.create({
       action: `Menghapus atlet: ${atlet.nama}`,
       koordinatorId: req.user.id
-    });
+    }, { transaction });
 
-    await atlet.destroy();
+    // Now delete the athlete
+    await atlet.destroy({ transaction });
+    
+    // Commit the transaction
+    await transaction.commit();
+    
     res.json({ message: 'Atlet berhasil dihapus' });
   } catch (error) {
+    // Rollback transaction on error
+    await transaction.rollback();
     res.status(500).json({ message: error.message });
   }
 };

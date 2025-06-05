@@ -173,24 +173,62 @@ export const updateKatalogLatihan = async (req, res) => {
 // Menghapus katalog latihan
 export const deleteKatalogLatihan = async (req, res) => {
   const { id } = req.params;
+  
+  // Use transaction to ensure data consistency
+  const transaction = await db.sequelize.transaction();
+  
   try {
     const katalog = await db.KatalogLatihan.findOne({
       where: { id, koordinatorId: req.user.id }
-    });
+    }, { transaction });
 
     if (!katalog) {
+      await transaction.rollback();
       return res.status(404).json({ message: 'Katalog latihan tidak ditemukan' });
     }
 
-    await katalog.destroy(); // This will also delete associated OpsiLatihan due to CASCADE
+    // First, find all LatihanAtlet records that use this catalog
+    const relatedLatihanAtlets = await db.LatihanAtlet.findAll({
+      where: { katalogLatihanId: id },
+      attributes: ['id']
+    }, { transaction });
 
+    const latihanAtletIds = relatedLatihanAtlets.map(latihan => latihan.id);
+
+    // Delete evaluations that reference these LatihanAtlet records
+    if (latihanAtletIds.length > 0) {
+      await db.Evaluasi.destroy({
+        where: { latihanAtletId: latihanAtletIds }
+      }, { transaction });
+
+      // Delete the LatihanAtlet records
+      await db.LatihanAtlet.destroy({
+        where: { katalogLatihanId: id }
+      }, { transaction });
+    }
+
+    // Delete OpsiLatihan records (if not handled by CASCADE)
+    await db.OpsiLatihan.destroy({
+      where: { katalogLatihanId: id }
+    }, { transaction });
+
+    // Finally, delete the catalog itself
+    await katalog.destroy({ transaction });
+
+    // Log activity
     await db.ActivityLog.create({
       action: `Menghapus katalog latihan: ${katalog.nama}`,
       koordinatorId: req.user.id,
-    });
+    }, { transaction });
+
+    // Commit the transaction
+    await transaction.commit();
 
     res.json({ message: 'Katalog latihan berhasil dihapus' });
   } catch (error) {
+    // Rollback transaction on error
+    await transaction.rollback();
+    console.error('Delete katalog error:', error);
     res.status(500).json({ message: error.message });
   }
 };
